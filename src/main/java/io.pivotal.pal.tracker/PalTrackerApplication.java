@@ -1,6 +1,7 @@
 package io.pivotal.pal.tracker;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -10,28 +11,28 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import javax.sql.DataSource;
-import java.util.TimeZone;
+import java.time.LocalDate;
 
 @SpringBootApplication
 public class PalTrackerApplication {
 
     public static void main(String[] args) {
-        // Make sure the application runs as UTC
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         SpringApplication.run(PalTrackerApplication.class, args);
-        //Just to commit
     }
 
     @Bean
-    TimeEntryRepository timeEntryRepository(DataSource dataSource) {
+    //public TimeEntryRepository timeEntryRepository()
+    public TimeEntryRepository timeEntryRepository(DataSource dataSource)
+    {
         return new JdbcTimeEntryRepository(dataSource);
     }
 
     @Bean
-    public ObjectMapper jsonObjectMapper() {
+    public ObjectMapper jsonObjectMapper()
+    {
         return Jackson2ObjectMapperBuilder.json()
-                .serializationInclusion(JsonInclude.Include.NON_NULL) // Don’t include null values
-                .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS) //ISODate
+                .serializationInclusion(JsonInclude.Include.NON_NULL)
+                .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .modules(new JavaTimeModule())
                 .build();
     }

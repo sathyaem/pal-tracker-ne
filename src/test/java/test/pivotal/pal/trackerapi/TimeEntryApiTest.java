@@ -34,17 +34,6 @@ public class TimeEntryApiTest {
 
     private TimeEntry timeEntry = new TimeEntry(123L, 456L, LocalDate.parse("2017-01-08"), 8);
 
-    @Before
-    public void setUp() throws Exception {
-        MysqlDataSource dataSource = new MysqlDataSource();
-        dataSource.setUrl(System.getenv("SPRING_DATASOURCE_URL"));
-
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        jdbcTemplate.execute("TRUNCATE time_entries");
-
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-    }
-
     @Test
     public void testCreate() throws Exception {
         ResponseEntity<String> createResponse = restTemplate.postForEntity("/time-entries", timeEntry, String.class);
@@ -60,10 +49,20 @@ public class TimeEntryApiTest {
         assertThat(createJson.read("$.hours", Long.class)).isEqualTo(8);
     }
 
+    @Before
+    public void setUp() throws Exception {
+        MysqlDataSource dataSource = new MysqlDataSource();
+        dataSource.setUrl(System.getenv("SPRING_DATASOURCE_URL"));
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        jdbcTemplate.execute("TRUNCATE time_entries");
+
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    }
+
     @Test
     public void testList() throws Exception {
         Long id = createTimeEntry();
-
 
         ResponseEntity<String> listResponse = restTemplate.getForEntity("/time-entries", String.class);
 
